@@ -35,18 +35,22 @@ public class OpenApiMojo extends AbstractMojo {
 
         InputStream in = this.getClass().getClassLoader().getResourceAsStream("generate-from-spec.groovy");
 
-        try {
-            String groovyScript = IOUtils.toString(in, StandardCharsets.UTF_8);
-            Binding binding = new Binding();
-            binding.setProperty("oasPathStr", specificationUri);
-            binding.setProperty("baseDir", baseDir);
-            binding.setProperty("groupId", groupId);
-            GroovyShell shell = new GroovyShell(binding);
 
-            shell.evaluate(groovyScript);
-        } catch (IOException e) {
-            getLog().error(e.getMessage());
-        }
+        RoutesWriter writer = new RoutesWriter(specificationUri, baseDir, groupId);
+
+        writer.init();
+//        try {
+//            String groovyScript = IOUtils.toString(in, StandardCharsets.UTF_8);
+//            Binding binding = new Binding();
+//            binding.setProperty("oasPathStr", specificationUri);
+//            binding.setProperty("baseDir", baseDir);
+//            binding.setProperty("groupId", groupId);
+//            GroovyShell shell = new GroovyShell(binding);
+//
+//            shell.evaluate(groovyScript);
+//        } catch (IOException e) {
+//            getLog().error(e.getMessage());
+//        }
     }
 
 }
