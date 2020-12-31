@@ -16,6 +16,8 @@ import org.apache.maven.project.MavenProject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Goal which generates the RoutesGenerated and RoutesImplementation using the Groovy script.
@@ -23,6 +25,8 @@ import java.nio.charset.StandardCharsets;
 @Mojo( name = "generate", defaultPhase = LifecyclePhase.INITIALIZE )
 
 public class OpenApiMojo extends AbstractMojo {
+    private final static Logger LOGGER = Logger.getLogger(RoutesWriter.class.getName());
+
     @Parameter( defaultValue = "${project}", required = true )
     private MavenProject project;
 
@@ -33,24 +37,8 @@ public class OpenApiMojo extends AbstractMojo {
         String baseDir = project.getBasedir().getAbsolutePath();
         String groupId = project.getGroupId();
 
-        InputStream in = this.getClass().getClassLoader().getResourceAsStream("generate-from-spec.groovy");
-
-
         RoutesWriter writer = new RoutesWriter(specificationUri, baseDir, groupId);
-
         writer.init();
-//        try {
-//            String groovyScript = IOUtils.toString(in, StandardCharsets.UTF_8);
-//            Binding binding = new Binding();
-//            binding.setProperty("oasPathStr", specificationUri);
-//            binding.setProperty("baseDir", baseDir);
-//            binding.setProperty("groupId", groupId);
-//            GroovyShell shell = new GroovyShell(binding);
-//
-//            shell.evaluate(groovyScript);
-//        } catch (IOException e) {
-//            getLog().error(e.getMessage());
-//        }
     }
 
 }

@@ -5,7 +5,6 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
-import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 
 import java.io.BufferedWriter;
@@ -23,6 +22,8 @@ public class RoutesWriter {
     private String baseDir;
     private String groupId;
 
+    private Vector opIdList;
+    private int startIndent = 2;
 
     private final static Logger LOGGER = Logger.getLogger(RoutesWriter.class.getName());
 
@@ -32,264 +33,274 @@ public class RoutesWriter {
         this.groupId = groupId;
 
         this.groupId = (groupId).replaceAll("\\.", "/").replaceAll("-", "_");
+        this.opIdList = new Vector<String>();
     }
 
     void init() {
         copySpec();
-        parseApi();
+        generateAndWriteRoutesGenerated();
+        writeRoutesImplementation();
+        writeGitignore();
     }
 
-    void parseApi() {
+    // TODO: move gitignore code out to example gitignore and read it instead
+    // TODO: write unit tests for all
+    // TODO: use try with resources instead
 
-        // SEPARATE OUT, THIS IS ROUTESGENERATED
+    StringBuffer generateRoutesGeneratedString() {
         Path oasFile = Path.of(oasPathStr);
 
         OpenAPI openAPI = new OpenAPIV3Parser().read(oasPathStr);
 
-
-        LOGGER.log(Level.INFO, "");
         LOGGER.log(Level.INFO, "==== Add Endpoints to RoutesGenerated Class (rGen) ====");
 
+        StringBuffer rGenCode = new StringBuffer();
+        int indent = startIndent;
+
+        //	Add support for request validation.
+        rGenCode.append(tabs(indent) + "interceptFrom()\n");
+        indent = 3;
+        rGenCode.append(tabs(indent) + ".process(new OpenApi4jValidator(\"" + oasFile.getFileName() + "\", contextPath));\n\n");
+
+        indent = 2;
+        rGenCode.append(tabs(indent)+"rest()\n");
+
+        Paths paths = openAPI.getPaths();
+        Set<String> pathKeys = paths.keySet();
+
+        for (String path : pathKeys) {
+            PathItem item = paths.get((Object) path);
+
+            Map<PathItem.HttpMethod, Operation> ops = item.readOperationsMap();
+
+            Operation getOp = item.getGet();
+            Operation putOp = item.getPut();
+            Operation postOp = item.getPost();
+            Operation deleteOp = item.getDelete();
+            Operation patchOp = item.getPatch();
+            Operation headOp = item.getHead();
+            Operation optionsOp = item.getOptions();
+
+            if (getOp != null) {
+                indent = 3;
+                String opId = "get" + path.replace('/', '-');
+                opId = opId.replace("{", "").replace("}", "");
+                opIdList.add(opId);
+                String desc = getOp.getDescription();
+                rGenCode.append(tabs(indent)+".get(\"" + path + "\")\n");
+                indent = 4;
+                rGenCode.append(tabs(indent)+".id(\"" + opId + "\")\n");
+
+                List<String> produces = new ArrayList<>();
+                getOp.getResponses().forEach((status, resp) -> {
+                    if (resp.getContent() != null) {
+                        resp.getContent().forEach((mediaType, mediaTypeObj) -> {
+                            if (!produces.contains(mediaType)) {
+                                produces.add(mediaType);
+                            }
+                        });
+                    }
+                });
+                if (produces.size() > 0) {
+                    rGenCode.append(tabs(indent) + ".produces(\"" + String.join(",", produces) + "\")\n");
+                }
+
+                rGenCode.append(tabs(indent)+".to(direct(\"" + opId + "\").getUri())\n");
+            }
+            if (putOp != null) {
+                indent = 3;
+                String opId = "put" + path.replace("/", "-");
+                opId = opId.replace("{", "").replace("}", "");
+                opIdList.add(opId);
+                String desc = putOp.getDescription();
+                rGenCode.append(tabs(indent)+".put(\"" + path + "\")\n");
+                indent = 4;
+                rGenCode.append(tabs(indent)+".id(\"" + opId + "\")\n");
+
+                List<String> consumes = new ArrayList<>();
+
+                putOp.getRequestBody().getContent().forEach((mediaType, mediaTypeObj) -> {
+                    consumes.add(mediaType);
+                });
+                if (consumes.size() > 0) {
+                    rGenCode.append(tabs(indent) +".consumes(\"" + String.join(",", consumes) + "\")\n");
+                }
+
+                List<String> produces = new ArrayList<>();
+                putOp.getResponses().forEach((status, resp) -> {
+                    if (resp.getContent() != null) {
+                        resp.getContent().forEach((mediaType, mediaTypeObj) -> {
+                            if (!produces.contains(mediaType)) {
+                                produces.add(mediaType);
+                            }
+                        });
+                    }
+                });
+                if (produces.size() > 0) {
+                    rGenCode.append(tabs(indent) + ".produces(\"" + String.join(",", produces) + "\")\n");
+                }
+
+                rGenCode.append(tabs(indent) + ".to(direct(\"" + opId + "\").getUri())\n");
+            }
+            if (postOp != null) {
+                indent = 3;
+                String opId = "post" + path.replace('/', '-');
+                opId = opId.replace("{", "").replace("}", "");
+                opIdList.add(opId);
+                String desc = postOp.getDescription();
+                rGenCode.append(tabs(indent) + ".post(\"" + path + "\")\n");
+                indent = 4;
+                rGenCode.append(tabs(indent) + ".id(\"" + opId + "\")\n");
+
+                if (postOp.getRequestBody() != null) {
+                    List<String> consumes = new ArrayList<>();
+                    postOp.getRequestBody().getContent().forEach((mediaType, mediaTypeObj) -> {
+                        consumes.add(mediaType);
+                    });
+                    if (consumes.size() > 0) {
+                        rGenCode.append(tabs(indent) + ".consumes(\"" + String.join(",", consumes) + "\")\n");
+                    }
+                }
+
+                List<String> produces = new ArrayList<>();
+                postOp.getResponses().forEach((status, resp) -> {
+                    if (resp.getContent() != null) {
+                        resp.getContent().forEach((mediaType, mediaTypeObj) -> {
+                            if (!produces.contains(mediaType)) {
+                                produces.add(mediaType);
+                            }
+                        });
+                    }
+                });
+
+                if (produces.size() > 0) {
+                    rGenCode.append(tabs(indent) + ".produces(\"" + String.join(",", produces) + "\")\n");
+                }
+
+                rGenCode.append(tabs(indent) + ".to(direct(\"" + opId + "\").getUri())\n");
+            }
+            if (deleteOp != null) {
+                indent = 3;
+                String opId = "delete" + path.replace('/', '-');
+                opId = opId.replace("{", "").replace("}", "");
+                opIdList.add(opId);
+                String desc = deleteOp.getDescription();
+                rGenCode.append(tabs(indent) + ".delete(\"" + path + "\")\n");
+                indent = 4;
+                rGenCode.append(tabs(indent) + ".id(\"" + opId + "\")\n");
+
+                if (deleteOp.getRequestBody() != null) {
+                    List<String> consumes = new ArrayList<>();
+
+                    deleteOp.getRequestBody().getContent().forEach((mediaType, mediaTypeObj) -> {
+                        consumes.add(mediaType);
+                    });
+                    if (consumes.size() > 0) {
+                        rGenCode.append(tabs(indent) + ".consumes(\"" + String.join(",", consumes) + "\")\n");
+                    }
+                }
+
+                List<String> produces = new ArrayList<>();
+                deleteOp.getResponses().forEach((status, resp) -> {
+                    if (resp.getContent() != null) {
+                        resp.getContent().forEach((mediaType, mediaTypeObj) -> {
+                            if (!produces.contains(mediaType)) {
+                                produces.add(mediaType);
+                            }
+                        });
+                    }
+                });
+                if (produces.size() > 0) {
+                    rGenCode.append(tabs(indent) + ".produces(\"" + String.join(",", produces) + "\")\n");
+                }
+
+                rGenCode.append(tabs(indent) + ".to(direct(\"" +opId + "\").getUri())\n");
+            }
+            if (patchOp != null) {
+                indent = 3;
+                String opId = "patch" + path.replace('/', '-');
+                opId = opId.replace("{", "").replace("}", "");
+                opIdList.add(opId);
+                String desc = patchOp.getDescription();
+                rGenCode.append(tabs(indent) + ".patch(\"" + path + "\")\n");
+                indent = 4;
+                rGenCode.append(tabs(indent) + ".id(\"" + opId + "\")\n");
+
+                List<String> consumes = new ArrayList<>();
+                patchOp.getRequestBody().getContent().forEach((mediaType, mediaTypeObj) -> {
+                    consumes.add(mediaType);
+                });
+                if (consumes.size() > 0) {
+                    rGenCode.append(tabs(indent) + ".consumes(\"" + String.join(",", consumes) + "\")\n");
+                }
+
+                List<String> produces = new ArrayList<>();
+                patchOp.getResponses().forEach((status, resp) -> {
+                    if (resp.getContent() != null) {
+                        resp.getContent().forEach((mediaType, mediaTypeObj) -> {
+                            if (!produces.contains(mediaType)) {
+                                produces.add(mediaType);
+                            }
+                        });
+                    }
+                });
+                if (produces.size() > 0) {
+                    rGenCode.append(tabs(indent) + ".produces(\"" + String.join(",", produces) + "\")\n");
+                }
+
+                rGenCode.append(tabs(indent) + ".to(direct(\"" + opId + "\").getUri())\n");
+            }
+            if (headOp != null) {
+                indent = 3;
+                String opId = "head" + path.replace('/', '-');
+                opId = opId.replace("{", "").replace("{", "");
+                opIdList.add(opId);
+                String desc = headOp.getDescription();
+                rGenCode.append(tabs(indent) + ".head(\"" + path + "\")\n");
+                indent = 4;
+                rGenCode.append(tabs(indent) + ".id(\"" + opId + "\")\n");
+                rGenCode.append(tabs(indent) + ".to(direct(\"" + opId + "\").getUri())\n");
+            }
+            if (optionsOp != null) {
+                indent = 3;
+                String opId = "options" + path.replace('/', '-');
+                opId = opId.replace("{", "").replace("{", "");
+                opIdList.add(opId);
+                String desc = optionsOp.getDescription();
+                rGenCode.append(tabs(indent) + ".options(\"" + path + "\")\n");
+                indent = 4;
+                rGenCode.append(tabs(indent) + ".id(\"" + opId + "\")\n");
+
+                List<String> produces = new ArrayList<>();
+                getOp.getResponses().forEach((status, resp) -> {
+                    if (resp.getContent() != null) {
+                        resp.getContent().forEach((mediaType, mediaTypeObj) -> {
+                            if (!produces.contains(mediaType)) {
+                                produces.add(mediaType);
+                            }
+                        });
+                    }
+                });
+                if (produces.size() > 0) {
+                    rGenCode.append(tabs(indent) + ".produces(\"" + String.join(",", produces) + "\")\n");
+                }
+
+                rGenCode.append(tabs(indent) + ".to(direct(\"" + opId + "\").getUri())\n");
+            }
+        }
+
+        indent = 2;
+        rGenCode.append(tabs(indent)+';');
+
+        return rGenCode;
+    }
+
+    void generateAndWriteRoutesGenerated() {
+        StringBuffer rGenCode = generateRoutesGeneratedString();
         String rGenPath = baseDir + "/src/generated/java/" + groupId + "/RoutesGenerated.java";
         File rGenFile = new File (rGenPath);
         try {
             StringBuffer rGenBuf = new StringBuffer(Files.readString(Path.of(rGenPath)));
-
-            int indent = 2;
-            StringBuffer rGenCode = new StringBuffer();
-
-            //	Add support for request validation.
-            rGenCode.append(tabs(indent) + "interceptFrom()\n");
-            indent = 3;
-            rGenCode.append(tabs(indent) + ".process(new OpenApi4jValidator(\"" + oasFile.getFileName() + "\", contextPath));\n\n");
-
-            indent = 2;
-            rGenCode.append(tabs(indent)+"rest()\n");
-
-            Paths paths = openAPI.getPaths();
-            Set<String> pathKeys = paths.keySet();
-
-            Vector opIdList = new Vector<String>();
-
-            for (String path : pathKeys) {
-                PathItem item = paths.get((Object) path);
-
-                Map<PathItem.HttpMethod, Operation> ops = item.readOperationsMap();
-
-                Operation getOp = item.getGet();
-                Operation putOp = item.getPut();
-                Operation postOp = item.getPost();
-                Operation deleteOp = item.getDelete();
-                Operation patchOp = item.getPatch();
-                Operation headOp = item.getHead();
-                Operation optionsOp = item.getOptions();
-
-                if (getOp != null) {
-                    indent = 3;
-                    String opId = "get" + path.replace('/', '-');
-                    opId = opId.replace("{", "").replace("}", "");
-                    opIdList.add(opId);
-                    String desc = getOp.getDescription();
-                    rGenCode.append(tabs(indent)+".get(\"" + path + "\")\n");
-                    indent = 4;
-                    rGenCode.append(tabs(indent)+".id(\"" + opId + "\")\n");
-
-                    List<String> produces = new ArrayList<>();
-                    getOp.getResponses().forEach((status, resp) -> {
-                        if (resp.getContent() != null) {
-                            resp.getContent().forEach((mediaType, mediaTypeObj) -> {
-                                if (!produces.contains(mediaType)) {
-                                    produces.add(mediaType);
-                                }
-                            });
-                        }
-                    });
-                    if (produces.size() > 0) {
-                        rGenCode.append(tabs(indent) + ".produces(\"" + String.join(",", produces) + "\")\n");
-                    }
-
-                    rGenCode.append(tabs(indent)+".to(direct(\"" + opId + "\").getUri())\n");
-                }
-                if (putOp != null) {
-                    indent = 3;
-                    String opId = "put" + path.replace("/", "-");
-                    opId = opId.replace("{", "").replace("}", "");
-                    opIdList.add(opId);
-                    String desc = putOp.getDescription();
-                    rGenCode.append(tabs(indent)+".put(\"" + path + "\")\n");
-                    indent = 4;
-                    rGenCode.append(tabs(indent)+".id(\"" + opId + "\")\n");
-
-                    List<String> consumes = new ArrayList<>();
-
-                    putOp.getRequestBody().getContent().forEach((mediaType, mediaTypeObj) -> {
-                        consumes.add(mediaType);
-                    });
-                    if (consumes.size() > 0) {
-                        rGenCode.append(tabs(indent) +".consumes(\"" + String.join(",", consumes) + "\")\n");
-                    }
-
-                    List<String> produces = new ArrayList<>();
-                    putOp.getResponses().forEach((status, resp) -> {
-                        if (resp.getContent() != null) {
-                            resp.getContent().forEach((mediaType, mediaTypeObj) -> {
-                                if (!produces.contains(mediaType)) {
-                                    produces.add(mediaType);
-                                }
-                            });
-                        }
-                    });
-                    if (produces.size() > 0) {
-                        rGenCode.append(tabs(indent) + ".produces(\"" + String.join(",", produces) + "\")\n");
-                    }
-
-                    rGenCode.append(tabs(indent) + ".to(direct(\"" + opId + "\").getUri())\n");
-                }
-                if (postOp != null) {
-                    indent = 3;
-                    String opId = "post" + path.replace('/', '-');
-                    opId = opId.replace("{", "").replace("}", "");
-                    opIdList.add(opId);
-                    String desc = postOp.getDescription();
-                    rGenCode.append(tabs(indent) + ".post(\"" + path + "\")\n");
-                    indent = 4;
-                    rGenCode.append(tabs(indent) + ".id(\"" + opId + "\")\n");
-
-                    if (postOp.getRequestBody() != null) {
-                        List<String> consumes = new ArrayList<>();
-                        postOp.getRequestBody().getContent().forEach((mediaType, mediaTypeObj) -> {
-                                consumes.add(mediaType);
-                        });
-                        if (consumes.size() > 0) {
-                            rGenCode.append(tabs(indent) + ".consumes(\"" + String.join(",", consumes) + "\")\n");
-                        }
-                    }
-
-                    List<String> produces = new ArrayList<>();
-                    postOp.getResponses().forEach((status, resp) -> {
-                        if (resp.getContent() != null) {
-                            resp.getContent().forEach((mediaType, mediaTypeObj) -> {
-                                if (!produces.contains(mediaType)) {
-                                    produces.add(mediaType);
-                                }
-                            });
-                        }
-                    });
-
-                    if (produces.size() > 0) {
-                        rGenCode.append(tabs(indent) + ".produces(\"" + String.join(",", produces) + "\")\n");
-                    }
-
-                    rGenCode.append(tabs(indent) + ".to(direct(\"" + opId + "\").getUri())\n");
-                }
-//                if (deleteOp != null) {
-//                    indent=3
-//                    def opId = 'delete'+path.replace('/', '-')
-//                    opId = opId.replace('{', '').replace('}', '')
-//                    opIdList.add(opId)
-//                    def desc = deleteOp.getDescription()
-//                    rGenCode.append(tabs(indent)+'.delete("'+path+'")\n')
-//                    indent=4
-//                    rGenCode.append(tabs(indent)+'.id("'+opId+'")\n')
-//
-//                    if (deleteOp.getRequestBody() != null) {
-//                        List<String> consumes = new ArrayList<>()
-//
-//                        deleteOp.getRequestBody().getContent().forEach{mediaType, mediaTypeObj -> consumes.add(mediaType)}
-//                        if (consumes.size() > 0) {
-//                            rGenCode.append(tabs(indent)+'.consumes("' + String.join(",", consumes) + '")\n')
-//                        }
-//                    }
-//
-//                    List<String> produces = new ArrayList<>()
-//                    deleteOp.getResponses().forEach{status, resp ->
-//                        if (resp.getContent() != null) {
-//                            resp.getContent().forEach{mediaType, mediaTypeObj ->
-//                                if (!produces.contains(mediaType)) {
-//                                    produces.add(mediaType)
-//                                }
-//                            }
-//                        }
-//                    }
-//                    if (produces.size() > 0) {
-//                        rGenCode.append(tabs(indent)+'.produces("' + String.join(",", produces) + '")\n')
-//                    }
-//
-//                    rGenCode.append(tabs(indent)+'.to(direct("'+opId+'").getUri())\n')
-//                }
-//                if (patchOp != null) {
-//                    indent=3
-//                    def opId = 'patch'+path.replace('/', '-')
-//                    opId = opId.replace('{', '').replace('}', '')
-//                    opIdList.add(opId)
-//                    def desc = patchOp.getDescription()
-//                    rGenCode.append(tabs(indent)+'.patch("'+path+'")\n')
-//                    indent=4
-//                    rGenCode.append(tabs(indent)+'.id("'+opId+'")\n')
-//
-//                    List<String> consumes = new ArrayList<>()
-//                    patchOp.getRequestBody().getContent().forEach{mediaType, mediaTypeObj -> consumes.add(mediaType)}
-//                    if (consumes.size() > 0) {
-//                        rGenCode.append(tabs(indent)+'.consumes("' + String.join(",", consumes) + '")\n')
-//                    }
-//
-//                    List<String> produces = new ArrayList<>()
-//                    patchOp.getResponses().forEach{status, resp ->
-//                        if (resp.getContent() != null) {
-//                            resp.getContent().forEach{mediaType, mediaTypeObj ->
-//                                if (!produces.contains(mediaType)) {
-//                                    produces.add(mediaType)
-//                                }
-//                            }
-//                        }
-//                    }
-//                    if (produces.size() > 0) {
-//                        rGenCode.append(tabs(indent)+'.produces("' + String.join(",", produces) + '")\n')
-//                    }
-//
-//                    rGenCode.append(tabs(indent)+'.to(direct("'+opId+'").getUri())\n')
-//                }
-//                if (headOp != null) {
-//                    indent=3
-//                    def opId = 'head'+path.replace('/', '-')
-//                    opId = opId.replace('{', '').replace('{', '')
-//                    opIdList.add(opId)
-//                    def desc = headOp.getDescription()
-//                    rGenCode.append(tabs(indent)+'.head("'+path+'")\n')
-//                    indent=4
-//                    rGenCode.append(tabs(indent)+'.id("'+opId+'")\n')
-//                    rGenCode.append(tabs(indent)+'.to(direct("'+opId+'").getUri())\n')
-//                }
-//                if (optionsOp != null) {
-//                    indent=3
-//                    def opId = 'options'+path.replace('/', '-')
-//                    opId = opId.replace('{', '').replace('{', '')
-//                    opIdList.add(opId)
-//                    def desc = optionsOp.getDescription()
-//                    rGenCode.append(tabs(indent)+'.options("'+path+'")\n')
-//                    indent=4
-//                    rGenCode.append(tabs(indent)+'.id("'+opId+'")\n')
-//
-//                    List<String> produces = new ArrayList<>()
-//                    getOp.getResponses().forEach{status, resp ->
-//                        if (resp.getContent() != null) {
-//                            resp.getContent().forEach{mediaType, mediaTypeObj ->
-//                                if (!produces.contains(mediaType)) {
-//                                    produces.add(mediaType)
-//                                }
-//                            }
-//                        }
-//                    }
-//                    if (produces.size() > 0) {
-//                        rGenCode.append(tabs(indent)+'.produces("' + String.join(",", produces) + '")\n')
-//                    }
-//
-//                    rGenCode.append(tabs(indent)+'.to(direct("'+opId+'").getUri())\n')
-//                }
-            }
-
-            indent = 2;
-            rGenCode.append(tabs(indent)+';');
 
             //	Write the RoutesGenerated document.
             String rGenCodeStr = rGenBuf.toString().replace ("[generated-restdsl]", rGenCode.toString());
@@ -300,24 +311,27 @@ public class RoutesWriter {
             writer.write(rGenCodeStr);
             writer.close();
 
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage());
+        }
+    }
 
+    void writeRoutesImplementation() {
+        LOGGER.log(Level.INFO, "==== Add Endpoints to RoutesImplemented (rImp) Class ====");
 
+        // Read the RoutesImplemented placeholder file.
+        String rImpPath = baseDir + "/src/main/java/" + groupId + "/RoutesImplementation.java";
+        File rImpFile = new File (rImpPath);
 
-
-
-            /// SEPARATE OUT, THIS IS ROUTESIMPLEMENTATION
-            LOGGER.log(Level.INFO, "");
-            LOGGER.log(Level.INFO, "==== Add Endpoints to RoutesImplemented (rImp) Class ====");
-
-            // Read the RoutesImplemented placeholder file.
-            String rImpPath = baseDir + "/src/main/java/" + groupId + "/RoutesImplementation.java";
-            File rImpFile = new File (rImpPath);
+        try {
             StringBuffer rImpBuf = new StringBuffer(Files.readString(Path.of(rImpPath)));
 
             //  ------------------------------------
             //  Generate code using the opIdList.
             //  ------------------------------------
-            rGenCode = new StringBuffer();
+            StringBuffer rGenCode = new StringBuffer();
+            int indent = startIndent;
+
             for (Object opId : opIdList) {
                 indent = 2;
                 rGenCode.append(tabs(indent) + "from(direct(\"" + opId + "\"))\n");
@@ -335,16 +349,21 @@ public class RoutesWriter {
             String rImpCodeStr = rImpBuf.toString().replace ("[generated-routes]", rGenCode.toString());
             LOGGER.log(Level.INFO, "File to write: " + rImpFile.getAbsolutePath());
 
-            writer = new BufferedWriter(new FileWriter(rImpPath));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(rImpPath));
             writer.write(rImpCodeStr);
             writer.close();
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage());
+        }
 
+    }
 
-
+    void writeGitignore() {
+        try {
             String gitignorePath = baseDir + "/.gitignore";
             File gitignoreFile = new File (gitignorePath);
 
-            rGenCode = new StringBuffer();
+            StringBuffer rGenCode = new StringBuffer();
             rGenCode.append("HELP.md\n" +
                     "target/\n" +
                     "!.mvn/wrapper/maven-wrapper.jar\n" +
@@ -383,14 +402,13 @@ public class RoutesWriter {
             String gitignoreStr = rGenCode.toString();
             LOGGER.log(Level.INFO, "File to write: " + gitignoreFile.getAbsolutePath());
 
-            writer = new BufferedWriter(new FileWriter(gitignorePath));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(gitignorePath));
             writer.write(gitignoreStr);
             writer.close();
-
-
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage());
         }
+
     }
 
     void copySpec() {
