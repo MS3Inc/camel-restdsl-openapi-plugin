@@ -1,0 +1,76 @@
+		from(direct("put-pet"))
+			.setBody(DatasonnetExpression.builder("{opId: 'put-pet'}, String.class)
+					.outputMediaType(MediaTypes.APPLICATION_JSON))
+		;
+		from(direct("post-pet"))
+			.setBody(DatasonnetExpression.builder("{opId: 'post-pet'}, String.class)
+					.outputMediaType(MediaTypes.APPLICATION_JSON))
+		;
+		from(direct("get-pet-findByStatus"))
+			.setBody(DatasonnetExpression.builder("{opId: 'get-pet-findByStatus'}, String.class)
+					.outputMediaType(MediaTypes.APPLICATION_JSON))
+		;
+		from(direct("get-pet-findByTags"))
+			.setBody(DatasonnetExpression.builder("{opId: 'get-pet-findByTags'}, String.class)
+					.outputMediaType(MediaTypes.APPLICATION_JSON))
+		;
+		from(direct("get-pet-petId"))
+			.setBody(DatasonnetExpression.builder("{opId: 'get-pet-petId'}, String.class)
+					.outputMediaType(MediaTypes.APPLICATION_JSON))
+		;
+		from(direct("post-pet-petId"))
+			.setBody(DatasonnetExpression.builder("{opId: 'post-pet-petId'}, String.class)
+					.outputMediaType(MediaTypes.APPLICATION_JSON))
+		;
+		from(direct("delete-pet-petId"))
+			.setBody(DatasonnetExpression.builder("{opId: 'delete-pet-petId'}, String.class)
+					.outputMediaType(MediaTypes.APPLICATION_JSON))
+		;
+		from(direct("post-pet-petId-uploadImage"))
+			.setBody(DatasonnetExpression.builder("{opId: 'post-pet-petId-uploadImage'}, String.class)
+					.outputMediaType(MediaTypes.APPLICATION_JSON))
+		;
+		from(direct("get-store-inventory"))
+			.setBody(DatasonnetExpression.builder("{opId: 'get-store-inventory'}, String.class)
+					.outputMediaType(MediaTypes.APPLICATION_JSON))
+		;
+		from(direct("post-store-order"))
+			.setBody(DatasonnetExpression.builder("{opId: 'post-store-order'}, String.class)
+					.outputMediaType(MediaTypes.APPLICATION_JSON))
+		;
+		from(direct("get-store-order-orderId"))
+			.setBody(DatasonnetExpression.builder("{opId: 'get-store-order-orderId'}, String.class)
+					.outputMediaType(MediaTypes.APPLICATION_JSON))
+		;
+		from(direct("delete-store-order-orderId"))
+			.setBody(DatasonnetExpression.builder("{opId: 'delete-store-order-orderId'}, String.class)
+					.outputMediaType(MediaTypes.APPLICATION_JSON))
+		;
+		from(direct("post-user"))
+			.setBody(DatasonnetExpression.builder("{opId: 'post-user'}, String.class)
+					.outputMediaType(MediaTypes.APPLICATION_JSON))
+		;
+		from(direct("post-user-createWithList"))
+			.setBody(DatasonnetExpression.builder("{opId: 'post-user-createWithList'}, String.class)
+					.outputMediaType(MediaTypes.APPLICATION_JSON))
+		;
+		from(direct("get-user-login"))
+			.setBody(DatasonnetExpression.builder("{opId: 'get-user-login'}, String.class)
+					.outputMediaType(MediaTypes.APPLICATION_JSON))
+		;
+		from(direct("get-user-logout"))
+			.setBody(DatasonnetExpression.builder("{opId: 'get-user-logout'}, String.class)
+					.outputMediaType(MediaTypes.APPLICATION_JSON))
+		;
+		from(direct("get-user-username"))
+			.setBody(DatasonnetExpression.builder("{opId: 'get-user-username'}, String.class)
+					.outputMediaType(MediaTypes.APPLICATION_JSON))
+		;
+		from(direct("put-user-username"))
+			.setBody(DatasonnetExpression.builder("{opId: 'put-user-username'}, String.class)
+					.outputMediaType(MediaTypes.APPLICATION_JSON))
+		;
+		from(direct("delete-user-username"))
+			.setBody(DatasonnetExpression.builder("{opId: 'delete-user-username'}, String.class)
+					.outputMediaType(MediaTypes.APPLICATION_JSON))
+		;

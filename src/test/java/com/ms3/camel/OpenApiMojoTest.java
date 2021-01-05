@@ -7,9 +7,16 @@ import org.junit.Rule;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Vector;
+import java.util.logging.Logger;
 
 public class OpenApiMojoTest
 {
+    private final static Logger LOGGER = Logger.getLogger(OpenApiMojoTest.class.getName());
+
     @Rule
     public MojoRule rule = new MojoRule()
     {
@@ -36,6 +43,52 @@ public class OpenApiMojoTest
         OpenApiMojo openApiMojo = (OpenApiMojo) rule.lookupConfiguredMojo( pom, "generate" );
         assertNotNull(openApiMojo);
 
+    }
+
+    // TODO: Add verify tests
+
+    @Test
+    public void testOperationVectorList() throws IOException {
+        RoutesCreator routesCreator = new RoutesCreator("target/test-classes/oas-petstore.yaml", null, "com.ms3-inc.camel");
+        Vector vector = routesCreator.generateOperationInfoList();
+        assertEquals(vector.size(),19);
+    }
+
+    @Test
+    public void testRoutesGeneratedCode() throws IOException {
+        RoutesCreator routesCreator = new RoutesCreator("target/test-classes/oas-petstore.yaml", null, "com.ms3-inc.camel");
+        Vector vector = routesCreator.generateOperationInfoList();
+        StringBuffer routesGeneratedCodeUnderTest = routesCreator.generateRoutesGeneratedCode(vector);
+
+        String pathToExpectedRoutesGenerated = "target/test-classes/expectedRoutesGenerated.txt";
+        StringBuffer expectedRoutesGenerated = new StringBuffer(Files.readString(Path.of(pathToExpectedRoutesGenerated)));
+
+        String routesGeneratedCodeWithoutSpaces = routesGeneratedCodeUnderTest.toString().replaceAll("\\s","");
+        String buffer = expectedRoutesGenerated.toString().replaceAll("\\s","");
+
+        assertEquals(routesGeneratedCodeWithoutSpaces, buffer);
+    }
+
+    @Test
+    public void testRoutesImplementationCode() throws IOException {
+        RoutesCreator routesCreator = new RoutesCreator("target/test-classes/oas-petstore.yaml", null, "com.ms3-inc.camel");
+        Vector vector = routesCreator.generateOperationInfoList();
+        StringBuffer routesImplCodeUnderTest = routesCreator.generateRoutesImplCode(vector);
+
+        String pathToExpectedRoutesImpl = "target/test-classes/expectedRoutesImpl.txt";
+        StringBuffer expectedRoutesImpl = new StringBuffer(Files.readString(Path.of(pathToExpectedRoutesImpl)));
+
+        String routesImplCodeWithoutSpaces = routesImplCodeUnderTest.toString().replaceAll("\\s","");
+        String buffer = expectedRoutesImpl.toString().replaceAll("\\s","");
+
+        assertEquals(routesImplCodeWithoutSpaces, buffer);
+    }
+
+    @Test
+    public void testReadGitignore() throws IOException {
+        RoutesCreator routesCreator = new RoutesCreator("target/test-classes/oas-petstore.yaml", null, "com.ms3-inc.camel");
+        String s = routesCreator.readGitignore();
+        assertNotNull(s);
     }
 }
 
