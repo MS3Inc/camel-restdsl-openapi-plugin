@@ -12,7 +12,20 @@
 
   <name>openapi-plugin Maven Plugin</name>
 
-  <url>http://www.ms3-inc.com</url>
+  <developers>
+    <developer>
+      <name>Rob Ratcliffe</name>
+      <email>rratcliffe@ms3-inc.com</email>
+      <organization>MS3</organization>
+      <organizationUrl>https://ms3-inc.com</organizationUrl>
+    </developer>
+    <developer>
+      <name>Mark Norton</name>
+      <email>mnorton@ms3-inc.com</email>
+      <organization>MS3</organization>
+      <organizationUrl>https://ms3-inc.com</organizationUrl>
+    </developer>
+  </developers>
 
   <prerequisites>
     <maven>${maven.version}</maven>
