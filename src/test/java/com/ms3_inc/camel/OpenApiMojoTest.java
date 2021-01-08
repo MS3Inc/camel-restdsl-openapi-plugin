@@ -4,17 +4,18 @@ package com.ms3_inc.camel;
 import io.swagger.v3.oas.models.Operation;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.maven.plugin.testing.MojoRule;
-
 import org.junit.Rule;
-import static org.junit.Assert.*;
 import org.junit.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Vector;
 import java.util.logging.Logger;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class OpenApiMojoTest
 {
