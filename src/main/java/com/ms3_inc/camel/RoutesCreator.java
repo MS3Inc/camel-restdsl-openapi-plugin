@@ -1,11 +1,12 @@
-package com.ms3.camel;
+package com.ms3_inc.camel;
 
-import com.google.common.io.Resources;
+//import com.google.common.io.Resources;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.parser.OpenAPIV3Parser;
+import org.apache.commons.lang3.tuple.Triple;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -32,7 +33,7 @@ public class RoutesCreator {
 
     void init() {
         copySpec();
-        Vector<OperationInfo> opInfoList = generateOperationInfoList();
+        List<Triple<String, String, Operation>> opInfoList = generateOperationInfoList();
 
         StringBuffer routesGeneratedCode = generateRoutesGeneratedCode(opInfoList);
         writeRoutesGenerated(routesGeneratedCode);
@@ -70,7 +71,7 @@ public class RoutesCreator {
         }
     }
 
-    Vector generateOperationInfoList() {
+    List generateOperationInfoList() {
         OpenAPI openAPI = new OpenAPIV3Parser().read(oasPathStr);
 
         LOGGER.info("==== Parse spec into operation list ====");
@@ -78,63 +79,20 @@ public class RoutesCreator {
         Paths paths = openAPI.getPaths();
         Set<String> pathKeys = paths.keySet();
 
-        Vector opInfoList = new Vector<OperationInfo>();
+        List opInfoList = new Vector<Triple>();
 
         for (String path : pathKeys) {
             PathItem item = paths.get(path);
 
-            Operation getOp = item.getGet();
-            Operation putOp = item.getPut();
-            Operation postOp = item.getPost();
-            Operation deleteOp = item.getDelete();
-            Operation patchOp = item.getPatch();
-            Operation headOp = item.getHead();
-            Operation optionsOp = item.getOptions();
-
-            if (getOp != null) {
-                OperationInfo opInfo = new OperationInfo("get", getOp, path);
-                opInfoList.add(opInfo);
-            }
-            if (putOp != null) {
-                OperationInfo opInfo = new OperationInfo("put", putOp, path);
-                opInfoList.add(opInfo);
-            }
-            if (postOp != null) {
-                OperationInfo opInfo = new OperationInfo("post", postOp, path);
-                opInfoList.add(opInfo);
-            }
-            if (deleteOp != null) {
-                OperationInfo opInfo = new OperationInfo("delete", deleteOp, path);
-                opInfoList.add(opInfo);
-            }
-            if (patchOp != null) {
-                // These are commented until I figure out how to test head and options
-//                LOGGER.info("Brackets from a different method");
-//                LOGGER.info("patch" + path.replace('/', '-'));
-
-                OperationInfo opInfo = new OperationInfo("patch", patchOp, path);
-                opInfoList.add(opInfo);
-            }
-            if (headOp != null) {
-//                LOGGER.info("Confirm the right brackets are being replaced here");
-//                LOGGER.info("head" + path.replace('/', '-'));
-
-                OperationInfo opInfo = new OperationInfo("head", headOp, path);
-                opInfoList.add(opInfo);
-            }
-            if (optionsOp != null) {
-//                LOGGER.info("Confirm the right brackets are being replaced here");
-//                LOGGER.info("options" + path.replace('/', '-'));
-
-                OperationInfo opInfo = new OperationInfo("options", optionsOp, path);
-                opInfoList.add(opInfo);
-            }
+            item.readOperationsMap().forEach((method, op) ->
+                    opInfoList.add(Triple.of(method.toString(), path, op))
+            );
         }
 
         return opInfoList;
     }
 
-    StringBuffer generateRoutesGeneratedCode(Vector<OperationInfo> opInfoList) {
+    StringBuffer generateRoutesGeneratedCode(List<Triple<String, String, Operation>> opInfoList) {
         Path oasFile = Path.of(oasPathStr);
 
         LOGGER.log(Level.INFO, "==== Add Endpoints to RoutesGenerated Class (rGen) ====");
@@ -143,51 +101,38 @@ public class RoutesCreator {
 
         rGenCode.appendRequestValidation(oasFile.getFileName());
 
-        for (OperationInfo opInfo : opInfoList) {
-            String method = opInfo.getMethod();
-            Operation operation = opInfo.getOperation();
-            String path = opInfo.getPath();
+        for (Triple opInfo : opInfoList) {
+            String method = opInfo.getLeft().toString().toLowerCase();
+            String path = opInfo.getMiddle().toString();
+            Operation operation = (Operation) opInfo.getRight();
+
+            rGenCode.appendDslMethodAndId(method, path);
 
             if (method.equals("get")) {
-                rGenCode.appendDslMethodAndId(method, path);
                 rGenCode.appendProduces(operation);
-                rGenCode.appendProducer(method, path);
             } else if (method.equals("put")) {
-                rGenCode.appendDslMethodAndId(method, path);
                 rGenCode.appendConsumes(operation);
                 rGenCode.appendProduces(operation);
-                rGenCode.appendProducer(method, path);
             } else if (method.equals("post")) {
-                rGenCode.appendDslMethodAndId(method, path);
-
                 if (operation.getRequestBody() != null) {
                     rGenCode.appendConsumes(operation);
                 }
 
                 rGenCode.appendProduces(operation);
-                rGenCode.appendProducer(method, path);
             } else if (method.equals("delete")) {
-                rGenCode.appendDslMethodAndId(method, path);
-
                 if (operation.getRequestBody() != null) {
                     rGenCode.appendConsumes(operation);
                 }
 
                 rGenCode.appendProduces(operation);
-                rGenCode.appendProducer(method, path);
             } else if (method.equals("patch")) {
-                rGenCode.appendDslMethodAndId(method, path);
                 rGenCode.appendConsumes(operation);
                 rGenCode.appendProduces(operation);
-                rGenCode.appendProducer(method, path);
-            } else if (method.equals("head")) {
-                rGenCode.appendDslMethodAndId(method, path);
-                rGenCode.appendProducer(method, path);
             } else if (method.equals("options")) {
-                rGenCode.appendDslMethodAndId(method, path);
                 rGenCode.appendProduces(operation);
-                rGenCode.appendProducer(method, path);
             }
+
+            rGenCode.appendProducer(method, path);
         }
 
         rGenCode.appendEndColon();
@@ -215,10 +160,10 @@ public class RoutesCreator {
         }
     }
 
-    StringBuffer generateRoutesImplCode(Vector<OperationInfo> opInfoList) {
+    StringBuffer generateRoutesImplCode(List<Triple<String, String, Operation>> opInfoList) {
         RoutesImplGenerator routesImplCode = new RoutesImplGenerator();
 
-        for (OperationInfo opInfo : opInfoList) {
+        for (Triple opInfo : opInfoList) {
             routesImplCode.appendStub(opInfo);
         }
         return routesImplCode.getGeneratedCode();
@@ -246,7 +191,8 @@ public class RoutesCreator {
 
     String readGitignore() {
         StringBuffer gitIgnoreBuf = new StringBuffer();
-        String path = Resources.getResource("gitignore.txt").getPath();
+//        String path = Resources.getResource("gitignore.txt").getPath();
+        String path = "target/classes/gitignore.txt";
         try {
             gitIgnoreBuf = new StringBuffer(Files.readString(Path.of(path)));
         } catch (IOException e) {

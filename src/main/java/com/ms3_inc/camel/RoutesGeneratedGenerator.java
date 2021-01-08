@@ -1,4 +1,4 @@
-package com.ms3.camel;
+package com.ms3_inc.camel;
 
 import io.swagger.v3.oas.models.Operation;
 
@@ -9,9 +9,8 @@ import java.util.List;
 public class RoutesGeneratedGenerator extends RoutesGenerator {
 
     protected StringBuffer appendDslMethodAndId(String method, String path) {
-        generatedCode.append(tabs(ONE_TAB_INDENT) + "." + method + "(\"" + path + "\")\n");
-        generatedCode.append(tabs(TWO_TAB_INDENT) + ".id(\"" + createOpId(method, path) + "\")\n");
-
+        generatedCode.append(tabs(ONE_TAB_INDENT)).append(".").append(method).append("(\"").append(path).append("\")\n");
+        generatedCode.append(tabs(TWO_TAB_INDENT)).append(".id(\"").append(createOpId(method, path)).append("\")\n");
         return generatedCode;
     }
 
@@ -21,7 +20,7 @@ public class RoutesGeneratedGenerator extends RoutesGenerator {
             consumes.add(mediaType);
         });
         if (consumes.size() > 0) {
-            generatedCode.append(tabs(TWO_TAB_INDENT) + ".consumes(\"" + String.join(",", consumes) + "\")\n");
+            generatedCode.append(tabs(TWO_TAB_INDENT)).append(".consumes(\"").append(String.join(",", consumes)).append("\")\n");
         }
         return generatedCode;
     }
@@ -38,34 +37,25 @@ public class RoutesGeneratedGenerator extends RoutesGenerator {
             }
         });
         if (produces.size() > 0) {
-            generatedCode.append(tabs(TWO_TAB_INDENT) + ".produces(\"" + String.join(",", produces) + "\")\n");
+            generatedCode.append(tabs(TWO_TAB_INDENT)).append(".produces(\"").append(String.join(",", produces)).append("\")\n");
         }
-
         return generatedCode;
     }
 
     protected StringBuffer appendProducer(String method, String path) {
-        int indent = TWO_TAB_INDENT;
-        generatedCode.append(tabs(indent) + ".to(direct(\"" + createOpId(method, path) + "\").getUri())\n");
+        generatedCode.append(tabs(TWO_TAB_INDENT)).append(".to(direct(\"").append(createOpId(method, path)).append("\").getUri())\n");
         return generatedCode;
     }
 
     protected StringBuffer appendRequestValidation(Path fileName) {
-        int indent = NO_INDENT;
-        generatedCode.append(tabs(indent) + "interceptFrom()\n");
-        indent = ONE_TAB_INDENT;
-        generatedCode.append(tabs(indent) + ".process(new OpenApi4jValidator(\"" + fileName + "\", contextPath));\n\n");
-
-        indent = NO_INDENT;
-        generatedCode.append(tabs(indent)+"rest()\n");
-
+        generatedCode.append(tabs(NO_INDENT)).append("interceptFrom()\n");
+        generatedCode.append(tabs(ONE_TAB_INDENT)).append(".process(new OpenApi4jValidator(\"").append(fileName).append("\", contextPath));\n\n");
+        generatedCode.append(tabs(NO_INDENT)).append("rest()\n");
         return generatedCode;
     }
 
     protected StringBuffer appendEndColon() {
-        int indent = NO_INDENT;
-        generatedCode.append(tabs(indent)+';');
-
+        generatedCode.append(tabs(NO_INDENT)).append(';');
         return generatedCode;
     }
 }

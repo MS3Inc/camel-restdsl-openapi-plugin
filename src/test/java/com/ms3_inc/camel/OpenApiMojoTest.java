@@ -1,6 +1,8 @@
-package com.ms3.camel;
+package com.ms3_inc.camel;
 
 
+import io.swagger.v3.oas.models.Operation;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.maven.plugin.testing.MojoRule;
 
 import org.junit.Rule;
@@ -10,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Vector;
 import java.util.logging.Logger;
 
@@ -35,29 +38,29 @@ public class OpenApiMojoTest
      * @throws Exception if any
      */
     @Test
-    public void testSomething()
+    public void testGoal()
             throws Exception
     {
         File pom = new File( "target/test-classes/project-to-test/" );
 
         OpenApiMojo openApiMojo = (OpenApiMojo) rule.lookupConfiguredMojo( pom, "generate" );
         assertNotNull(openApiMojo);
-
     }
 
     // TODO: Add verify tests
+    // TODO: Add more unit tests
 
     @Test
     public void testOperationVectorList() throws IOException {
         RoutesCreator routesCreator = new RoutesCreator("target/test-classes/oas-petstore.yaml", null, "com.ms3-inc.camel");
-        Vector vector = routesCreator.generateOperationInfoList();
+        List<Triple<String, String, Operation>> vector = routesCreator.generateOperationInfoList();
         assertEquals(vector.size(),19);
     }
 
     @Test
     public void testRoutesGeneratedCode() throws IOException {
         RoutesCreator routesCreator = new RoutesCreator("target/test-classes/oas-petstore.yaml", null, "com.ms3-inc.camel");
-        Vector vector = routesCreator.generateOperationInfoList();
+        List<Triple<String, String, Operation>> vector = routesCreator.generateOperationInfoList();
         StringBuffer routesGeneratedCodeUnderTest = routesCreator.generateRoutesGeneratedCode(vector);
 
         String pathToExpectedRoutesGenerated = "target/test-classes/expectedRoutesGenerated.txt";
@@ -72,7 +75,7 @@ public class OpenApiMojoTest
     @Test
     public void testRoutesImplementationCode() throws IOException {
         RoutesCreator routesCreator = new RoutesCreator("target/test-classes/oas-petstore.yaml", null, "com.ms3-inc.camel");
-        Vector vector = routesCreator.generateOperationInfoList();
+        List<Triple<String, String, Operation>> vector = routesCreator.generateOperationInfoList();
         StringBuffer routesImplCodeUnderTest = routesCreator.generateRoutesImplCode(vector);
 
         String pathToExpectedRoutesImpl = "target/test-classes/expectedRoutesImpl.txt";

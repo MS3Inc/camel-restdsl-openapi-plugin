@@ -1,4 +1,4 @@
-package com.ms3.camel;
+package com.ms3_inc.camel;
 
 // TODO: Fix package to be com.ms3-inc
 

@@ -1,4 +1,4 @@
-package com.ms3.camel;
+package com.ms3_inc.camel;
 
 public class RoutesGenerator {
     public final int NO_INDENT = 2;
