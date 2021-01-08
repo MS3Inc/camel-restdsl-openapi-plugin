@@ -12,7 +12,7 @@ public class RoutesImplGenerator extends RoutesGenerator {
         generatedCode.append(tabs(NO_INDENT)).append("from(direct(\"").append(opId).append("\"))\n");
         generatedCode.append(tabs(ONE_TAB_INDENT)).append(".setBody(DatasonnetExpression.builder(\"{opId: '");
         generatedCode.append(opId);
-        generatedCode.append("'}, String.class)\n").append(tabs(THREE_TAB_INDENT)).append(".outputMediaType(MediaTypes.APPLICATION_JSON))\n");
+        generatedCode.append("'}\", String.class)\n").append(tabs(THREE_TAB_INDENT)).append(".outputMediaType(MediaTypes.APPLICATION_JSON))\n");
         generatedCode.append(tabs(NO_INDENT)).append(";\n");
 
         return generatedCode;
