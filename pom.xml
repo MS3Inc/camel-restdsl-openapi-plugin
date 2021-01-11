@@ -28,9 +28,9 @@
   </developers>
 
   <scm>
-    <connection>scm:git:https://github.com/MS3Inc/camel-archetypes.git</connection>
-    <developerConnection>scm:git:https://github.com/MS3Inc/camel-archetypes.git</developerConnection>
-    <url>https://github.com/MS3Inc/camel-archetypes</url>
+    <connection>scm:git:https://github.com/MS3Inc/camel-restdsl-openapi-plugin.git</connection>
+    <developerConnection>scm:git:https://github.com/MS3Inc/camel-restdsl-openapi-plugin.git</developerConnection>
+    <url>https://github.com/MS3Inc/camel-restdsl-openapi-plugin</url>
     <tag>HEAD</tag>
   </scm>
 
