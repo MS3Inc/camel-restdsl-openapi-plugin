@@ -1,4 +1,4 @@
-package com.ms3_inc.camel;
+package com.ms3_inc.tavros;
 
 
 import io.swagger.v3.oas.models.Operation;
@@ -20,6 +20,8 @@ import static org.junit.Assert.assertNotNull;
 public class OpenApiMojoTest
 {
     private final static Logger LOGGER = Logger.getLogger(OpenApiMojoTest.class.getName());
+    private final String GROUP_ID = "com.ms3-inc.tavros";
+    private final String YAML = "target/test-classes/oas-petstore.yaml";
 
     @Rule
     public MojoRule rule = new MojoRule()
@@ -53,14 +55,14 @@ public class OpenApiMojoTest
 
     @Test
     public void testOperationVectorList() throws IOException {
-        RoutesCreator routesCreator = new RoutesCreator("target/test-classes/oas-petstore.yaml", null, "com.ms3-inc.camel");
+        RoutesCreator routesCreator = new RoutesCreator(YAML, null, GROUP_ID);
         List<Triple<String, String, Operation>> vector = routesCreator.generateOperationInfoList();
         assertEquals(vector.size(),19);
     }
 
     @Test
     public void testRoutesGeneratedCode() throws IOException {
-        RoutesCreator routesCreator = new RoutesCreator("target/test-classes/oas-petstore.yaml", null, "com.ms3-inc.camel");
+        RoutesCreator routesCreator = new RoutesCreator(YAML, null, GROUP_ID);
         List<Triple<String, String, Operation>> vector = routesCreator.generateOperationInfoList();
         StringBuffer routesGeneratedCodeUnderTest = routesCreator.generateRoutesGeneratedCode(vector);
 
@@ -75,7 +77,7 @@ public class OpenApiMojoTest
 
     @Test
     public void testRoutesImplementationCode() throws IOException {
-        RoutesCreator routesCreator = new RoutesCreator("target/test-classes/oas-petstore.yaml", null, "com.ms3-inc.camel");
+        RoutesCreator routesCreator = new RoutesCreator(YAML, null, GROUP_ID);
         List<Triple<String, String, Operation>> vector = routesCreator.generateOperationInfoList();
         StringBuffer routesImplCodeUnderTest = routesCreator.generateRoutesImplCode(vector);
 
@@ -90,7 +92,7 @@ public class OpenApiMojoTest
 
     @Test
     public void testReadGitignore() throws IOException {
-        RoutesCreator routesCreator = new RoutesCreator("target/test-classes/oas-petstore.yaml", null, "com.ms3-inc.camel");
+        RoutesCreator routesCreator = new RoutesCreator(YAML, null, GROUP_ID);
         String s = routesCreator.readGitignore();
         assertNotNull(s);
     }

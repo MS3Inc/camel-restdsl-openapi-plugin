@@ -4,12 +4,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.ms3-inc.camel</groupId>
+  <groupId>com.ms3-inc.tavros</groupId>
   <artifactId>camel-restdsl-openapi-plugin</artifactId>
   <version>0.1.1-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
 
-  <name>Camel REST DSL OpenAPI Maven Plugin</name>
+  <name>Camel REST DSL OpenAPI Plugin</name>
   <description>Generates a Camel REST DSL project from an OpenAPI document</description>
   <url>https://github.com/MS3Inc/camel-restdsl-openapi-plugin</url>
   <inceptionYear>2020</inceptionYear>
@@ -45,11 +45,13 @@
 
   <distributionManagement>
     <repository>
-      <id>sonatype-ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      <id>ms3-nexus</id>
+      <name>maven-releases</name>
+      <url>https://maven.ms3-inc.com/repository/maven-releases/</url>
     </repository>
     <snapshotRepository>
       <id>ms3-nexus</id>
+      <name>maven-snapshots</name>
       <url>https://maven.ms3-inc.com/repository/maven-snapshots/</url>
     </snapshotRepository>
   </distributionManagement>
@@ -270,26 +272,6 @@
                 </goals>
               </execution>
             </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>1.6</version>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <gpgArguments>
-                <arg>--pinentry-mode</arg>
-                <arg>loopback</arg>
-              </gpgArguments>
-            </configuration>
           </plugin>
         </plugins>
       </build>

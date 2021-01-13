@@ -1,4 +1,4 @@
-package com.ms3_inc.camel;
+package com.ms3_inc.tavros;
 
 public class RoutesGenerator {
     public final int NO_INDENT = 2;
