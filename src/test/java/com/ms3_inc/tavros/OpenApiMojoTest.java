@@ -1,4 +1,4 @@
-package com.ms3_inc.camel;
+package com.ms3_inc.tavros;
 
 
 import io.swagger.v3.oas.models.Operation;
