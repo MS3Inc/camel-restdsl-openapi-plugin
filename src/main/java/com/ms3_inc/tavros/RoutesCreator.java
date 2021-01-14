@@ -148,7 +148,7 @@ public class RoutesCreator {
             StringBuffer rGenBuf = new StringBuffer(Files.readString(Path.of(rGenPath)));
 
             String rGenCodeStr = rGenBuf.toString().replace ("[generated-restdsl]", routesGeneratedCode.toString());
-            
+
             LOGGER.log(Level.INFO, "File to write: " + rGenFile.getAbsolutePath());
 
             BufferedWriter writer = new BufferedWriter(new FileWriter(rGenPath));
@@ -191,7 +191,6 @@ public class RoutesCreator {
 
     String readGitignore() {
         StringBuffer gitIgnoreBuf = new StringBuffer();
-//        String path = Resources.getResource("gitignore.txt").getPath();
         String path = "target/classes/gitignore.txt";
         try {
             gitIgnoreBuf = new StringBuffer(Files.readString(Path.of(path)));

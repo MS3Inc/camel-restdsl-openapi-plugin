@@ -1,4 +1,4 @@
-		interceptFrom("rest:*")
+		interceptFrom("rest*")
 			.process(new OpenApi4jValidator("oas-petstore.yaml", contextPath));
 
 		rest()
