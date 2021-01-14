@@ -148,8 +148,7 @@ public class RoutesCreator {
             StringBuffer rGenBuf = new StringBuffer(Files.readString(Path.of(rGenPath)));
 
             String rGenCodeStr = rGenBuf.toString().replace ("[generated-restdsl]", routesGeneratedCode.toString());
-
-            LOGGER.info(rGenCodeStr);
+            
             LOGGER.log(Level.INFO, "File to write: " + rGenFile.getAbsolutePath());
 
             BufferedWriter writer = new BufferedWriter(new FileWriter(rGenPath));
