@@ -43,11 +43,7 @@ public class RoutesGeneratedGenerator extends RoutesGenerator {
     }
 
     protected StringBuffer appendProducer(String method, String path) {
-        startLogger();
-
         generatedCode.append(tabs(TWO_TAB_INDENT)).append(".to(direct(\"").append(createOpId(method, path)).append("\").getUri())\n");
-
-        endLogger();
 
         return generatedCode;
     }
@@ -61,22 +57,6 @@ public class RoutesGeneratedGenerator extends RoutesGenerator {
 
     protected StringBuffer appendEndColon() {
         generatedCode.append(tabs(NO_INDENT)).append(';');
-        return generatedCode;
-    }
-
-    // Temporary logger methods until the tracer is set.
-    protected StringBuffer startLogger() {
-        generatedCode.append(tabs(TWO_TAB_INDENT)).append(".route()\n");
-        generatedCode.append(tabs(TWO_TAB_INDENT)).append(".setProperty(\"origRouteId\", simple(\"${routeId}\"))\n");
-        generatedCode.append(tabs(TWO_TAB_INDENT)).append(".to(direct(\"logger-helper-start\"))\n");
-
-        return generatedCode;
-    }
-
-    protected StringBuffer endLogger() {
-        generatedCode.append(tabs(TWO_TAB_INDENT)).append(".to(direct(\"logger-helper-end\"))\n");
-        generatedCode.append(tabs(TWO_TAB_INDENT)).append(".endRest()\n");
-
         return generatedCode;
     }
 }
