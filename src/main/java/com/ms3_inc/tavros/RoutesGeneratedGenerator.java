@@ -49,7 +49,7 @@ public class RoutesGeneratedGenerator extends RoutesGenerator {
     }
 
     protected StringBuffer appendRequestValidation(Path fileName) {
-        generatedCode.append(tabs(NO_INDENT)).append("interceptFrom(\"rest*\")\n");
+        generatedCode.append(tabs(NO_INDENT)).append("interceptFrom()\n");
         generatedCode.append(tabs(ONE_TAB_INDENT)).append(".process(new OpenApi4jValidator(\"").append(fileName).append("\", contextPath));\n\n");
         generatedCode.append(tabs(NO_INDENT)).append("rest()\n");
         return generatedCode;
