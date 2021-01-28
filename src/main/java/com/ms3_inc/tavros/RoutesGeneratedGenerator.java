@@ -16,9 +16,12 @@ public class RoutesGeneratedGenerator extends RoutesGenerator {
 
     protected StringBuffer appendConsumes(Operation operation) {
         List<String> consumes = new ArrayList<>();
-        operation.getRequestBody().getContent().forEach((mediaType, mediaTypeObj) -> {
-            consumes.add(mediaType);
-        });
+        if (operation.getRequestBody() != null) {
+            operation.getRequestBody().getContent().forEach((mediaType, mediaTypeObj) -> {
+                    consumes.add(mediaType);
+            });
+        }
+
         if (consumes.size() > 0) {
             generatedCode.append(tabs(TWO_TAB_INDENT)).append(".consumes(\"").append(String.join(",", consumes)).append("\")\n");
         }

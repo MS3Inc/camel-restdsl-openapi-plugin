@@ -108,31 +108,8 @@ public class RoutesCreator {
             Operation operation = (Operation) opInfo.getRight();
 
             rGenCode.appendDslMethodAndId(method, path);
-
-            if (method.equals("get")) {
-                rGenCode.appendProduces(operation);
-            } else if (method.equals("put")) {
-                rGenCode.appendConsumes(operation);
-                rGenCode.appendProduces(operation);
-            } else if (method.equals("post")) {
-                if (operation.getRequestBody() != null) {
-                    rGenCode.appendConsumes(operation);
-                }
-
-                rGenCode.appendProduces(operation);
-            } else if (method.equals("delete")) {
-                if (operation.getRequestBody() != null) {
-                    rGenCode.appendConsumes(operation);
-                }
-
-                rGenCode.appendProduces(operation);
-            } else if (method.equals("patch")) {
-                rGenCode.appendConsumes(operation);
-                rGenCode.appendProduces(operation);
-            } else if (method.equals("options")) {
-                rGenCode.appendProduces(operation);
-            }
-
+            rGenCode.appendConsumes(operation);
+            rGenCode.appendProduces(operation);
             rGenCode.appendProducer(method, path);
         }
 
