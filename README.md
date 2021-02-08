@@ -12,6 +12,8 @@ There is one goal associated with this plugin:
 
 Clone the main branch of this repo, change to the plugin directory, and run `mvn clean install`.
 
+If you add or update a file and receive an error about missing headers, such as `Missing header in: `, run `mvn com.mycila:license-maven-plugin:format`. If you get an error with that command saying that you don't have the plugin locally, you can get it by running `mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=com.mycila:license-maven-plugin:4.0.rc2`.
+
 ### Who do I talk to? ###
 
 Contact:
