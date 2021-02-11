@@ -22,10 +22,7 @@ import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import org.apache.commons.lang3.tuple.Triple;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -48,6 +45,7 @@ public class RoutesCreator {
     }
 
     void init() {
+
         copySpec();
         List<Triple<String, String, Operation>> opInfoList = generateOperationInfoList();
 
@@ -56,19 +54,15 @@ public class RoutesCreator {
 
         StringBuffer routesImplCode = generateRoutesImplCode(opInfoList);
         writeRoutesImplementation(routesImplCode);
-
-        String gitignoreContents = readGitignore();
-        writeGitignore(gitignoreContents);
     }
 
     void copySpec() {
         LOGGER.info("==== Copying OpenAPI spec ====");
         LOGGER.info("API file to copy: " + oasPathStr);
-        Path oasFile = Path.of(oasPathStr);
 
-        String specText = null;
         try {
-            specText = Files.readString(oasFile);
+            Path oasFile = Path.of(oasPathStr);
+            String specText = Files.readString(oasFile);
 
             String oasPath = baseDir + "/src/generated/api";
 
@@ -83,6 +77,8 @@ public class RoutesCreator {
             writer.write(specText);
             writer.close();
         } catch (IOException e) {
+            LOGGER.severe(e.getMessage());
+        } catch (Exception e) {
             LOGGER.severe(e.getMessage());
         }
     }
@@ -179,33 +175,6 @@ public class RoutesCreator {
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage());
         }
-    }
-
-    String readGitignore() {
-        StringBuffer gitIgnoreBuf = new StringBuffer();
-        String path = "target/classes/gitignore.txt";
-        try {
-            gitIgnoreBuf = new StringBuffer(Files.readString(Path.of(path)));
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage());
-        }
-        return gitIgnoreBuf.toString();
-    }
-
-    void writeGitignore(String gitignoreStr) {
-        try {
-            String gitignorePath = baseDir + "/.gitignore";
-            File gitignoreFile = new File (gitignorePath);
-
-            LOGGER.log(Level.INFO, "File to write: " + gitignoreFile.getAbsolutePath());
-
-            BufferedWriter writer = new BufferedWriter(new FileWriter(gitignorePath));
-            writer.write(gitignoreStr);
-            writer.close();
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage());
-        }
-
     }
 
 }

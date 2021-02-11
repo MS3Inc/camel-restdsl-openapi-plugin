@@ -65,9 +65,6 @@ public class OpenApiMojoTest
         assertNotNull(openApiMojo);
     }
 
-    // TODO: Add verify tests
-    // TODO: Add more unit tests
-
     @Test
     public void testOperationVectorList() throws IOException {
         RoutesCreator routesCreator = new RoutesCreator(YAML, null, GROUP_ID);
@@ -103,13 +100,6 @@ public class OpenApiMojoTest
         String buffer = expectedRoutesImpl.toString().replaceAll("\\s","");
 
         assertEquals(routesImplCodeWithoutSpaces, buffer);
-    }
-
-    @Test
-    public void testReadGitignore() throws IOException {
-        RoutesCreator routesCreator = new RoutesCreator(YAML, null, GROUP_ID);
-        String s = routesCreator.readGitignore();
-        assertNotNull(s);
     }
 }
 
