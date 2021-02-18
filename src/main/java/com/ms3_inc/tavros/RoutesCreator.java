@@ -135,7 +135,10 @@ public class RoutesCreator {
         try {
             StringBuffer rGenBuf = new StringBuffer(Files.readString(Path.of(rGenPath)));
 
-            String rGenCodeStr = rGenBuf.toString().replace ("[generated-restdsl]", routesGeneratedCode.toString());
+            String rGenCodeStr = rGenBuf.toString().replace (
+                    "/* This is where the REST routes are set up using the REST DSL.\n" +
+                            "           They are set up here to separate them from the implementation routes. */",
+                    routesGeneratedCode.toString());
 
             LOGGER.log(Level.INFO, "File to write: " + rGenFile.getAbsolutePath());
 
@@ -151,6 +154,7 @@ public class RoutesCreator {
     StringBuffer generateRoutesImplCode(List<Triple<String, String, Operation>> opInfoList) {
         RoutesImplGenerator routesImplCode = new RoutesImplGenerator();
 
+        routesImplCode.appendStubComment();
         for (Triple opInfo : opInfoList) {
             routesImplCode.appendStub(opInfo);
         }
@@ -166,7 +170,10 @@ public class RoutesCreator {
         try {
             StringBuffer rImpBuf = new StringBuffer(Files.readString(Path.of(rImpPath)));
 
-            String rImpCodeStr = rImpBuf.toString().replace ("[generated-routes]", routesImplCode.toString());
+            String rImpCodeStr = rImpBuf.toString().replace (
+                    "/* This where the implementation routes go.\n" +
+                    "           They consume the producers that are set in RoutesGenerated. */",
+                    routesImplCode.toString());
             LOGGER.log(Level.INFO, "File to write: " + rImpFile.getAbsolutePath());
 
             BufferedWriter writer = new BufferedWriter(new FileWriter(rImpPath));

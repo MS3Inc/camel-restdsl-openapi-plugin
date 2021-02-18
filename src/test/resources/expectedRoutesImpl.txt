@@ -1,4 +1,5 @@
-		from(direct("put-pet"))
+	    // TODO: Replace stubs for each endpoint with real implementation. Implementation defaults to a simple response with operation Id.
+	    from(direct("put-pet"))
 			.setBody(DatasonnetExpression.builder("{opId: 'put-pet'}", String.class)
 					.outputMediaType(MediaTypes.APPLICATION_JSON))
 		;

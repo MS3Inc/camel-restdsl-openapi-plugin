@@ -19,16 +19,21 @@ import org.apache.commons.lang3.tuple.Triple;
 
 public class RoutesImplGenerator extends RoutesGenerator {
 
+    protected StringBuffer appendStubComment() {
+        generatedCode.append(tabs(ZERO_TABS)).append("// TODO: Replace stubs for each endpoint with real implementation. Implementation defaults to a simple response with operation Id.\n");
+        return generatedCode;
+    }
+
     protected StringBuffer appendStub(Triple opInfo) {
         String method = opInfo.getLeft().toString().toLowerCase();
         String path = opInfo.getMiddle().toString();
         Object opId = createOpId(method, path);
 
-        generatedCode.append(tabs(NO_INDENT)).append("from(direct(\"").append(opId).append("\"))\n");
-        generatedCode.append(tabs(ONE_TAB_INDENT)).append(".setBody(DatasonnetExpression.builder(\"{opId: '");
+        generatedCode.append(tabs(TWO_TABS)).append("from(direct(\"").append(opId).append("\"))\n");
+        generatedCode.append(tabs(THREE_TABS)).append(".setBody(DatasonnetExpression.builder(\"{opId: '");
         generatedCode.append(opId);
-        generatedCode.append("'}\", String.class)\n").append(tabs(THREE_TAB_INDENT)).append(".outputMediaType(MediaTypes.APPLICATION_JSON))\n");
-        generatedCode.append(tabs(NO_INDENT)).append(";\n");
+        generatedCode.append("'}\", String.class)\n").append(tabs(FIVE_TABS)).append(".outputMediaType(MediaTypes.APPLICATION_JSON))\n");
+        generatedCode.append(tabs(TWO_TABS)).append(";\n");
 
         return generatedCode;
     }

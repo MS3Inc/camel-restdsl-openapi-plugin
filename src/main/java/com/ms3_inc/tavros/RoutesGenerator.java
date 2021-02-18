@@ -16,10 +16,11 @@
 package com.ms3_inc.tavros;
 
 public class RoutesGenerator {
-    public final int NO_INDENT = 2;
-    public final int ONE_TAB_INDENT = 3;
-    public final int TWO_TAB_INDENT = 4;
-    public final int THREE_TAB_INDENT = 5;
+    public final int ZERO_TABS = 0;
+    public final int TWO_TABS = 2;
+    public final int THREE_TABS = 3;
+    public final int FOUR_TABS = 4;
+    public final int FIVE_TABS = 5;
 
     public final StringBuffer generatedCode;
     public RoutesGenerator() {
