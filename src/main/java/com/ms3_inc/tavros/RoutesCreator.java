@@ -135,10 +135,17 @@ public class RoutesCreator {
         try {
             StringBuffer rGenBuf = new StringBuffer(Files.readString(Path.of(rGenPath)));
 
-            String rGenCodeStr = rGenBuf.toString().replace (
-                    "/* This is where the REST routes are set up using the REST DSL.\n" +
-                            "           They are set up here to separate them from the implementation routes. */",
-                    routesGeneratedCode.toString());
+            String routesGenToReplace =
+            "/* This is where the REST routes are set up using the REST DSL.\n" +
+            "           They are set up here to separate them from the implementation routes. */\n" +
+            "        rest()\n" +
+            "            .get(\"/hello\")\n" +
+            "                .id(\"get-hello\")\n" +
+            "                .produces(\"application/json\")\n" +
+            "                .to(direct(\"get-hello\").getUri())\n" +
+            "        ;";
+
+            String rGenCodeStr = rGenBuf.toString().replace (routesGenToReplace, routesGeneratedCode.toString());
 
             LOGGER.log(Level.INFO, "File to write: " + rGenFile.getAbsolutePath());
 
@@ -170,10 +177,15 @@ public class RoutesCreator {
         try {
             StringBuffer rImpBuf = new StringBuffer(Files.readString(Path.of(rImpPath)));
 
-            String rImpCodeStr = rImpBuf.toString().replace (
-                    "/* This where the implementation routes go.\n" +
-                    "           They consume the producers that are set in RoutesGenerated. */",
-                    routesImplCode.toString());
+            String routesImplToReplace =
+            "/* This where the implementation routes go.\n" +
+            "           They consume the producers that are set in RoutesGenerated. */\n" +
+            "        from(direct(\"get-hello\"))\n" +
+            "            .setBody(DatasonnetExpression.builder(\"{greeting: 'Hello World'}\", String.class)\n" +
+            "                    .outputMediaType(MediaTypes.APPLICATION_JSON))\n" +
+            "        ;";
+
+            String rImpCodeStr = rImpBuf.toString().replace (routesImplToReplace, routesImplCode.toString());
             LOGGER.log(Level.INFO, "File to write: " + rImpFile.getAbsolutePath());
 
             BufferedWriter writer = new BufferedWriter(new FileWriter(rImpPath));
