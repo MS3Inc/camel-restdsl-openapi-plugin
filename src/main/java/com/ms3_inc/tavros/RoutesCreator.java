@@ -66,8 +66,9 @@ public class RoutesCreator {
 
             String oasPath = baseDir + "/src/generated/api";
 
-            new File(oasPath).mkdir();
-            LOGGER.info("Made directory " + oasPath);
+            LOGGER.info("Deleting sample spec in " + oasPath);
+            Path originalSpec = Path.of(oasPath + "/greeting.yaml");
+            Files.delete(originalSpec);
 
             String pathAndName = oasPath + "/" + oasFile.getFileName();
 
@@ -105,13 +106,11 @@ public class RoutesCreator {
     }
 
     StringBuffer generateRoutesGeneratedCode(List<Triple<String, String, Operation>> opInfoList) {
-        Path oasFile = Path.of(oasPathStr);
-
         LOGGER.log(Level.INFO, "==== Add Endpoints to RoutesGenerated Class (rGen) ====");
 
         RoutesGeneratedGenerator rGenCode = new RoutesGeneratedGenerator();
 
-        rGenCode.appendRequestValidation(oasFile.getFileName());
+        rGenCode.appendStartOfRestDSL();
 
         for (Triple opInfo : opInfoList) {
             String method = opInfo.getLeft().toString().toLowerCase();
@@ -132,8 +131,11 @@ public class RoutesCreator {
     void writeRoutesGenerated(StringBuffer routesGeneratedCode) {
         String rGenPath = baseDir + "/src/generated/java/" + groupId + "/RoutesGenerated.java";
         File rGenFile = new File (rGenPath);
+
         try {
             StringBuffer rGenBuf = new StringBuffer(Files.readString(Path.of(rGenPath)));
+
+            String oasFileName = Path.of(oasPathStr).getFileName().toString();
 
             String routesGenToReplace =
             "/* This is where the REST routes are set up using the REST DSL.\n" +
@@ -145,7 +147,9 @@ public class RoutesCreator {
             "                .to(direct(\"get-hello\").getUri())\n" +
             "        ;";
 
-            String rGenCodeStr = rGenBuf.toString().replace (routesGenToReplace, routesGeneratedCode.toString());
+            String rGenCodeStr = rGenBuf.toString()
+                    .replace("greeting.yaml", oasFileName)
+                    .replace (routesGenToReplace, routesGeneratedCode.toString());
 
             LOGGER.log(Level.INFO, "File to write: " + rGenFile.getAbsolutePath());
 

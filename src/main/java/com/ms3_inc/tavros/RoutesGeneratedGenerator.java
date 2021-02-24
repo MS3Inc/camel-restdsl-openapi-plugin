@@ -66,10 +66,8 @@ public class RoutesGeneratedGenerator extends RoutesGenerator {
         return generatedCode;
     }
 
-    protected StringBuffer appendRequestValidation(Path fileName) {
-        generatedCode.append(tabs(ZERO_TABS)).append("interceptFrom()\n");
-        generatedCode.append(tabs(THREE_TABS)).append(".process(new OpenApi4jValidator(\"").append(fileName).append("\", contextPath));\n\n");
-        generatedCode.append(tabs(TWO_TABS)).append("rest()\n");
+    protected StringBuffer appendStartOfRestDSL() {
+        generatedCode.append(tabs(ZERO_TABS)).append("rest()\n");
         return generatedCode;
     }
 
