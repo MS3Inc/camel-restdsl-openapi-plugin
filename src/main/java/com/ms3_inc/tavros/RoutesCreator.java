@@ -21,6 +21,7 @@ import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import org.apache.commons.lang3.tuple.Triple;
+import org.apache.maven.plugin.MojoExecutionException;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -44,8 +45,7 @@ public class RoutesCreator {
         this.groupId = (groupId).replaceAll("\\.", "/").replaceAll("-", "_");
     }
 
-    void init() {
-
+    void init() throws MojoExecutionException {
         copySpec();
         List<Triple<String, String, Operation>> opInfoList = generateOperationInfoList();
 
@@ -56,21 +56,21 @@ public class RoutesCreator {
         writeRoutesImplementation(routesImplCode);
     }
 
-    void copySpec() {
+    void copySpec() throws MojoExecutionException {
         LOGGER.info("==== Copying OpenAPI spec ====");
         LOGGER.info("API file to copy: " + oasPathStr);
 
+        Path oasFile = Path.of(oasPathStr);
+        String specText = null;
         try {
-            Path oasFile = Path.of(oasPathStr);
-            String specText = Files.readString(oasFile);
+            specText = Files.readString(oasFile);
 
             String oasPath = baseDir + "/src/generated/api";
 
-            LOGGER.info("Deleting sample spec in " + oasPath);
-            Path originalSpec = Path.of(oasPath + "/greeting.yaml");
-            Files.delete(originalSpec);
-
             String pathAndName = oasPath + "/" + oasFile.getFileName();
+
+            new File(oasPath).mkdir();
+            LOGGER.info("Made directory " + oasPath);
 
             BufferedWriter writer = new BufferedWriter(new FileWriter(pathAndName));
 
@@ -78,9 +78,7 @@ public class RoutesCreator {
             writer.write(specText);
             writer.close();
         } catch (IOException e) {
-            LOGGER.severe(e.getMessage());
-        } catch (Exception e) {
-            LOGGER.severe(e.getMessage());
+            throw new MojoExecutionException("There was a problem while copying the spec.");
         }
     }
 
@@ -110,6 +108,8 @@ public class RoutesCreator {
 
         RoutesGeneratedGenerator rGenCode = new RoutesGeneratedGenerator();
 
+        Path oasFile = Path.of(oasPathStr);
+        rGenCode.appendRequestValidation(oasFile.getFileName());
         rGenCode.appendStartOfRestDSL();
 
         for (Triple opInfo : opInfoList) {
@@ -128,27 +128,16 @@ public class RoutesCreator {
         return rGenCode.getGeneratedCode();
     }
 
-    void writeRoutesGenerated(StringBuffer routesGeneratedCode) {
+    void writeRoutesGenerated(StringBuffer routesGeneratedCode) throws MojoExecutionException {
         String rGenPath = baseDir + "/src/generated/java/" + groupId + "/RoutesGenerated.java";
         File rGenFile = new File (rGenPath);
 
         try {
             StringBuffer rGenBuf = new StringBuffer(Files.readString(Path.of(rGenPath)));
 
-            String oasFileName = Path.of(oasPathStr).getFileName().toString();
-
-            String routesGenToReplace =
-            "/* This is where the REST routes are set up using the REST DSL.\n" +
-            "           They are set up here to separate them from the implementation routes. */\n" +
-            "        rest()\n" +
-            "            .get(\"/hello\")\n" +
-            "                .id(\"get-hello\")\n" +
-            "                .produces(\"application/json\")\n" +
-            "                .to(direct(\"get-hello\").getUri())\n" +
-            "        ;";
+            String routesGenToReplace = "// REST DSL routes";
 
             String rGenCodeStr = rGenBuf.toString()
-                    .replace("greeting.yaml", oasFileName)
                     .replace (routesGenToReplace, routesGeneratedCode.toString());
 
             LOGGER.log(Level.INFO, "File to write: " + rGenFile.getAbsolutePath());
@@ -156,9 +145,8 @@ public class RoutesCreator {
             BufferedWriter writer = new BufferedWriter(new FileWriter(rGenPath));
             writer.write(rGenCodeStr);
             writer.close();
-
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage());
+            throw new MojoExecutionException("There was a problem writing RoutesGenerated.");
         }
     }
 
@@ -172,7 +160,7 @@ public class RoutesCreator {
         return routesImplCode.getGeneratedCode();
     }
 
-    void writeRoutesImplementation(StringBuffer routesImplCode) {
+    void writeRoutesImplementation(StringBuffer routesImplCode) throws MojoExecutionException {
         LOGGER.log(Level.INFO, "==== Add Endpoints to RoutesImplemented (rImp) Class ====");
 
         String rImpPath = baseDir + "/src/main/java/" + groupId + "/RoutesImplementation.java";
@@ -181,13 +169,7 @@ public class RoutesCreator {
         try {
             StringBuffer rImpBuf = new StringBuffer(Files.readString(Path.of(rImpPath)));
 
-            String routesImplToReplace =
-            "/* This where the implementation routes go.\n" +
-            "           They consume the producers that are set in RoutesGenerated. */\n" +
-            "        from(direct(\"get-hello\"))\n" +
-            "            .setBody(DatasonnetExpression.builder(\"{greeting: 'Hello World'}\", String.class)\n" +
-            "                    .outputMediaType(MediaTypes.APPLICATION_JSON))\n" +
-            "        ;";
+            String routesImplToReplace = "// Implementation routes";
 
             String rImpCodeStr = rImpBuf.toString().replace (routesImplToReplace, routesImplCode.toString());
             LOGGER.log(Level.INFO, "File to write: " + rImpFile.getAbsolutePath());
@@ -196,7 +178,7 @@ public class RoutesCreator {
             writer.write(rImpCodeStr);
             writer.close();
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage());
+            throw new MojoExecutionException("There was a problem writing RoutesImplementation.");
         }
     }
 

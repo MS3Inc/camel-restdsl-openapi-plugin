@@ -1,3 +1,6 @@
+		interceptFrom()
+        	.process(new OpenApi4jValidator("oas-petstore.yaml", contextPath));
+
 		rest()
 			.put("/pet")
 				.id("put-pet")
