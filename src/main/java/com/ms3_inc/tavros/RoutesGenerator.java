@@ -16,11 +16,12 @@
 package com.ms3_inc.tavros;
 
 public class RoutesGenerator {
-    public final int ZERO_TABS = 0;
-    public final int TWO_TABS = 2;
-    public final int THREE_TABS = 3;
-    public final int FOUR_TABS = 4;
-    public final int FIVE_TABS = 5;
+    public final int SPACES_PER_INDENT = 4;
+    public final int NONE = 0;
+    public final int TWO = 2;
+    public final int THREE = 3;
+    public final int FOUR = 4;
+    public final int FIVE = 5;
 
     public final StringBuffer generatedCode;
     public RoutesGenerator() {
@@ -31,10 +32,12 @@ public class RoutesGenerator {
         return generatedCode;
     }
 
-    public String tabs(int level) {
+    public String indents(int indents) {
         StringBuffer sb = new StringBuffer();
-        for (int i=0; i<level; i++) {
-            sb.append('\t');
+        for (int i = 0; i < indents; i++) {
+            for (int j = 0; j < SPACES_PER_INDENT; j++) {
+                sb.append(" ");
+            }
         }
         return sb.toString();
     }
