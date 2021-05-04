@@ -15,15 +15,22 @@
  */
 package com.ms3_inc.tavros;
 
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.parser.OpenAPIV3Parser;
+import io.swagger.v3.parser.core.models.ParseOptions;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.maven.plugin.MojoExecutionException;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -61,10 +68,7 @@ public class RoutesCreator {
         LOGGER.info("API file to copy: " + oasPathStr);
 
         Path oasFile = Path.of(oasPathStr);
-        String specText = null;
         try {
-            specText = Files.readString(oasFile);
-
             String oasPath = baseDir + "/src/generated/api";
 
             String pathAndName = oasPath + "/" + oasFile.getFileName();
@@ -74,13 +78,26 @@ public class RoutesCreator {
 
             BufferedWriter writer = new BufferedWriter(new FileWriter(pathAndName));
 
+            ParseOptions options = new ParseOptions();
+//            options.setResolveFully(true);
+//            options.setResolveCombinators(true);
+//            options.setFlatten(true);
+            options.setResolve(true);
+            OpenAPI openAPI = new OpenAPIV3Parser().read(oasPathStr, null, options);
+            YAMLFactory factory = (YAMLFactory) Yaml.mapper().getFactory();
+            factory.disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
+                    .disable(YAMLGenerator.Feature.MINIMIZE_QUOTES);
+
+            String yaml = Yaml.pretty().writeValueAsString(openAPI);
+
             LOGGER.info("File to write: " + pathAndName);
-            writer.write(specText);
+            writer.write(yaml);
             writer.close();
         } catch (IOException e) {
             throw new MojoExecutionException("There was a problem while copying the spec.");
         }
     }
+
 
     List generateOperationInfoList() {
         OpenAPI openAPI = new OpenAPIV3Parser().read(oasPathStr);
