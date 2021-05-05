@@ -14,6 +14,14 @@ Clone the main branch of this repo, change to the plugin directory, and run `mvn
 
 If you add or update a file and receive an error about missing headers, such as `Missing header in: `, run `mvn com.mycila:license-maven-plugin:format`. If you get an error with that command saying that you don't have the plugin locally, you can get it by running `mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=com.mycila:license-maven-plugin:4.0.rc2`.
 
+### Debugging during development
+
+If unfamiliar with debugging a maven plugin:
+
+In the terminal, run `mvnDebug com.ms3-inc.tavros:camel-restdsl-openapi-plugin:<version>:generate -DspecificationUri=<testSpecUri>`
+
+Then, in your IDE, create a configuration file with remote jvm debug, with the port that is outputted from the above command.
+
 ### Who do I talk to? ###
 
 Contact:
