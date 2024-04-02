@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 the original author or authors.
+ * Copyright 2020-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,9 +30,14 @@ public class RoutesImplGenerator extends RoutesGenerator {
         Object opId = createOpId(method, path);
 
         generatedCode.append(indents(TWO)).append("from(direct(\"").append(opId).append("\"))\n");
-        generatedCode.append(indents(THREE)).append(".setBody(DatasonnetExpression.builder(\"{opId: '");
+        generatedCode.append(indents(THREE)).append(".setBody(datasonnet(\"{opId: '");
         generatedCode.append(opId);
-        generatedCode.append("'}\", String.class)\n").append(indents(FIVE)).append(".outputMediaType(MediaTypes.APPLICATION_JSON))\n");
+        generatedCode.append("'}\",\n")
+                     .append(indents(FIVE)).append("String.class,\n")
+                     .append(indents(FIVE)).append("MediaTypes.APPLICATION_JSON.toString(),\n")
+                     .append(indents(FIVE)).append("MediaTypes.APPLICATION_JSON.toString())\n")
+                     .append(indents(THREE)).append(")\n")
+        ;
         generatedCode.append(indents(TWO)).append(";\n");
 
         return generatedCode;
