@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2020-2021 the original author or authors.
+    Copyright 2020-2024 the original author or authors.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
     limitations under the License.
 
 -->
-
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
@@ -67,9 +65,8 @@
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
     <snapshotRepository>
-      <id>ms3-nexus</id>
-      <name>maven-snapshots</name>
-      <url>https://maven.ms3-inc.com/repository/maven-snapshots/</url>
+      <id>github</id>
+      <url>https://maven.pkg.github.com/ms3inc/camel-restdsl-openapi-plugin</url>
     </snapshotRepository>
   </distributionManagement>
 
