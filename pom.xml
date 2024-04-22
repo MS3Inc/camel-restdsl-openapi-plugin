@@ -66,7 +66,7 @@
     </repository>
     <snapshotRepository>
       <id>github</id>
-      <url>https://maven.pkg.github.com/rlratcliffe/camel-restdsl-openapi-plugin</url>
+      <url>https://maven.pkg.github.com/ms3inc/camel-restdsl-openapi-plugin</url>
     </snapshotRepository>
   </distributionManagement>
 
