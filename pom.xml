@@ -67,9 +67,8 @@
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
     <snapshotRepository>
-      <id>ms3-nexus</id>
-      <name>maven-snapshots</name>
-      <url>https://maven.ms3-inc.com/repository/maven-snapshots/</url>
+      <id>github</id>
+      <url>https://maven.ms3-inc.com/rlratcliffe/camel-restdsl-openapi-plugin</url>
     </snapshotRepository>
   </distributionManagement>
 
