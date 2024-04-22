@@ -20,8 +20,8 @@
     <servers>
         <server>
             <id>github</id>
-            <username>${env.REPO_USER}</username>
-            <password>${env.REPO_PASSWORD}</password>
+            <username>${env.GH_USER}</username>
+            <password>${env.GH_PAT}</password>
         </server>
         <server>
             <id>sonatype-ossrh</id>

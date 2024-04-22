@@ -17,8 +17,9 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
+      - name: Recreate settings.xml
+        uses: whelk-io/maven-settings-xml-action@v22
+        with:
+          servers: '[{ "id": "github", "username": "${{ github.actor }}", "password": "${{ secrets.GITHUB_TOKEN }}" }]'
       - name: Publish package
         run: mvn --batch-mode deploy
-        env:
-          REPO_USER: "${{ github.actor }}"
-          REPO_PASSWORD: "${{ secrets.GITHUB_TOKEN }}"
