@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2020-2021 the original author or authors.
+    Copyright 2020-2026 the original author or authors.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -79,9 +79,8 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.7</maven.compiler.source>
-    <maven.compiler.target>1.7</maven.compiler.target>
-    <maven.version>3.3.9</maven.version>
+    <maven.compiler.release>21</maven.compiler.release>
+    <maven.version>3.9.16</maven.version>
     <mycila.version>4.0.rc2</mycila.version>
   </properties>
 
@@ -113,7 +112,7 @@
     <dependency>
       <groupId>org.apache.maven.plugin-tools</groupId>
       <artifactId>maven-plugin-annotations</artifactId>
-      <version>3.6.0</version>
+      <version>3.15.2</version>
       <scope>provided</scope>
     </dependency>
 
@@ -132,7 +131,7 @@
     <dependency>
       <groupId>org.apache.maven.plugin-testing</groupId>
       <artifactId>maven-plugin-testing-harness</artifactId>
-      <version>3.3.0</version>
+      <version>3.5.1</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -151,11 +150,11 @@
         </plugin>
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.0</version>
+          <version>3.15.0</version>
         </plugin>
         <plugin>
           <artifactId>maven-plugin-plugin</artifactId>
-          <version>3.6.0</version>
+          <version>3.15.2</version>
         </plugin>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
@@ -183,9 +182,13 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-plugin-plugin</artifactId>
-        <version>3.6.0</version>
+        <version>3.15.2</version>
         <configuration>
-          <!-- <goalPrefix>maven-archetype-plugin</goalPrefix> -->
+          <!-- Required from maven-plugin-plugin 3.7 onward: the artifactId does
+               not match the maven-*-plugin / *-maven-plugin convention, so the
+               prefix cannot be derived. This only affects the short invocation
+               form; the archetype invokes the plugin by full coordinates. -->
+          <goalPrefix>camel-restdsl-openapi</goalPrefix>
           <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
         </configuration>
         <executions>
@@ -202,14 +205,6 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>11</source>
-          <target>11</target>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
