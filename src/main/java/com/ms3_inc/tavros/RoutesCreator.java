@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 the original author or authors.
+ * Copyright 2020-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,6 +86,17 @@ public class RoutesCreator {
         OpenAPI openAPI = new OpenAPIV3Parser().read(oasPathStr);
 
         LOGGER.info("==== Parse spec into operation list ====");
+
+        // The parser returns null rather than throwing when a document cannot be
+        // read - unreachable file, malformed YAML, or a spec version the parser
+        // does not understand. Without this check the next line failed with a
+        // bare NullPointerException that said nothing about the actual problem.
+        if (openAPI == null) {
+            throw new IllegalArgumentException(
+                    "Could not parse an OpenAPI document from '" + oasPathStr + "'. "
+                            + "Check that the path is correct, the document is well formed, and that its "
+                            + "OpenAPI version is supported by the configured parser.");
+        }
 
         Paths paths = openAPI.getPaths();
         Set<String> pathKeys = paths.keySet();

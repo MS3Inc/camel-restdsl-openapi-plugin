@@ -1,0 +1,21 @@
+interceptFrom()
+            .process(new OpenApi4jValidator("oas-31-sample.yaml", contextPath));
+
+        rest()
+            .get("/widget")
+                .id("get-widget")
+                .produces("application/json")
+                .to(direct("get-widget"))
+            .post("/widget")
+                .id("post-widget")
+                .consumes("application/json,application/xml")
+                .produces("application/json")
+                .to(direct("post-widget"))
+            .get("/widget/{widgetId}")
+                .id("get-widget-widgetId")
+                .produces("application/json")
+                .to(direct("get-widget-widgetId"))
+            .delete("/widget/{widgetId}")
+                .id("delete-widget-widgetId")
+                .to(direct("delete-widget-widgetId"))
+        ;

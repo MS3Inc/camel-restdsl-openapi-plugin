@@ -1,0 +1,17 @@
+// TODO: Replace stubs for each endpoint with real implementation. Implementation defaults to a simple response with operation Id.
+        from(direct("get-widget"))
+            .setBody(DatasonnetExpression.builder("{opId: 'get-widget'}", String.class)
+                    .outputMediaType(MediaTypes.APPLICATION_JSON))
+        ;
+        from(direct("post-widget"))
+            .setBody(DatasonnetExpression.builder("{opId: 'post-widget'}", String.class)
+                    .outputMediaType(MediaTypes.APPLICATION_JSON))
+        ;
+        from(direct("get-widget-widgetId"))
+            .setBody(DatasonnetExpression.builder("{opId: 'get-widget-widgetId'}", String.class)
+                    .outputMediaType(MediaTypes.APPLICATION_JSON))
+        ;
+        from(direct("delete-widget-widgetId"))
+            .setBody(DatasonnetExpression.builder("{opId: 'delete-widget-widgetId'}", String.class)
+                    .outputMediaType(MediaTypes.APPLICATION_JSON))
+        ;

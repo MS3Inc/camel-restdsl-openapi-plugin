@@ -23,7 +23,7 @@
 
   <groupId>com.ms3-inc.tavros</groupId>
   <artifactId>camel-restdsl-openapi-plugin</artifactId>
-  <version>0.1.8-SNAPSHOT</version>
+  <version>0.2.0-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
 
   <name>Camel REST DSL OpenAPI Plugin</name>
@@ -81,6 +81,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.release>21</maven.compiler.release>
     <maven.version>3.9.16</maven.version>
+    <!-- Only used by the generated-code compile check in src/test -->
+    <camel.version>4.18.4</camel.version>
     <mycila.version>4.0.rc2</mycila.version>
   </properties>
 
@@ -119,7 +121,7 @@
     <dependency>
       <groupId>io.swagger.parser.v3</groupId>
       <artifactId>swagger-parser-v3</artifactId>
-      <version>2.0.24</version>
+      <version>2.1.47</version>
     </dependency>
 
     <dependency>
@@ -132,6 +134,22 @@
       <groupId>org.apache.maven.plugin-testing</groupId>
       <artifactId>maven-plugin-testing-harness</artifactId>
       <version>3.5.1</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Test-only: the compile classpath for GeneratedCodeCompilesTest, which
+         compiles the generator's OUTPUT against the Camel version the archetype
+         targets. These are never a runtime dependency of the plugin itself. -->
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-endpointdsl</artifactId>
+      <version>${camel.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-datasonnet</artifactId>
+      <version>${camel.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -245,6 +263,9 @@
                 <exclude>src/test/resources/expectedRoutesImpl.txt</exclude>
                 <exclude>src/test/resources/expectedRoutesGenerated.txt</exclude>
                 <exclude>src/test/resources/oas-petstore.yaml</exclude>
+            <exclude>src/test/resources/expectedRoutesImpl31.txt</exclude>
+            <exclude>src/test/resources/expectedRoutesGenerated31.txt</exclude>
+            <exclude>src/test/resources/oas-31-sample.yaml</exclude>
                 <exclude>**/target/**</exclude>
                 <exlude>**/settings.xml</exlude>
               </excludes>
