@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 the original author or authors.
+ * Copyright 2020-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,11 @@ public class RoutesGeneratedGenerator extends RoutesGenerator {
     }
 
     protected StringBuffer appendProducer(String method, String path) {
-        generatedCode.append(indents(FOUR)).append(".to(direct(\"").append(createOpId(method, path)).append("\").getUri())\n");
+        // Camel 4 removed getUri() from the endpoint builders. RestDefinition
+        // accepts an EndpointProducerBuilder directly - to(EndpointProducerBuilder)
+        // - so the builder is passed as-is. Emitting .getUri() produced code that
+        // compiled under Camel 3 and fails under Camel 4 with "cannot find symbol".
+        generatedCode.append(indents(FOUR)).append(".to(direct(\"").append(createOpId(method, path)).append("\"))\n");
 
         return generatedCode;
     }

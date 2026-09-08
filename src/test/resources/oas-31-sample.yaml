@@ -1,0 +1,89 @@
+openapi: 3.1.0
+info:
+  title: OpenAPI 3.1 generator fixture
+  version: 1.0.0
+  summary: Exercises 3.1-specific constructs against the route generator.
+servers:
+  - url: /v1
+paths:
+  /widget:
+    post:
+      summary: Create a widget
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Widget'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Widget'
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Widget'
+        '400':
+          description: bad request
+    get:
+      summary: List widgets
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Widget'
+  /widget/{widgetId}:
+    get:
+      summary: Fetch one widget
+      parameters:
+        - name: widgetId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Widget'
+    delete:
+      summary: Delete a widget
+      parameters:
+        - name: widgetId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: deleted
+components:
+  schemas:
+    Widget:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+        # 3.1: nullability is expressed as a type array, not `nullable: true`
+        label:
+          type:
+            - string
+            - "null"
+        # 3.1: exclusiveMinimum is a number, not a boolean
+        weight:
+          type: number
+          exclusiveMinimum: 0
+        tags:
+          type: array
+          items:
+            type: string

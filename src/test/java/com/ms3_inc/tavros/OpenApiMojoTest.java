@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 the original author or authors.
+ * Copyright 2020-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,12 +31,15 @@ import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class OpenApiMojoTest
 {
     private final static Logger LOGGER = Logger.getLogger(OpenApiMojoTest.class.getName());
     private final String GROUP_ID = "com.ms3-inc.tavros";
     private final String YAML = "target/test-classes/oas-petstore.yaml";
+    private final String YAML_31 = "target/test-classes/oas-31-sample.yaml";
 
     @Rule
     public MojoRule rule = new MojoRule()
@@ -100,6 +103,53 @@ public class OpenApiMojoTest
         String buffer = expectedRoutesImpl.toString().replaceAll("\\s","");
 
         assertEquals(routesImplCodeWithoutSpaces, buffer);
+    }
+
+    // --- OpenAPI 3.1 ---------------------------------------------------------
+    // swagger-parser 2.0.24 returned null for a 3.1 document and the generator
+    // failed with a bare NullPointerException. These pin 3.1 support.
+
+    @Test
+    public void testOperationListFrom31Spec() {
+        RoutesCreator routesCreator = new RoutesCreator(YAML_31, null, GROUP_ID);
+        List<Triple<String, String, Operation>> vector = routesCreator.generateOperationInfoList();
+        assertEquals(4, vector.size());
+    }
+
+    @Test
+    public void testRoutesGeneratedCodeFrom31Spec() throws IOException {
+        RoutesCreator routesCreator = new RoutesCreator(YAML_31, null, GROUP_ID);
+        List<Triple<String, String, Operation>> vector = routesCreator.generateOperationInfoList();
+        StringBuffer underTest = routesCreator.generateRoutesGeneratedCode(vector);
+
+        StringBuffer expected = new StringBuffer(
+                Files.readString(Path.of("target/test-classes/expectedRoutesGenerated31.txt")));
+
+        assertEquals(expected.toString().replaceAll("\\s", ""), underTest.toString().replaceAll("\\s", ""));
+    }
+
+    @Test
+    public void testRoutesImplementationCodeFrom31Spec() throws IOException {
+        RoutesCreator routesCreator = new RoutesCreator(YAML_31, null, GROUP_ID);
+        List<Triple<String, String, Operation>> vector = routesCreator.generateOperationInfoList();
+        StringBuffer underTest = routesCreator.generateRoutesImplCode(vector);
+
+        StringBuffer expected = new StringBuffer(
+                Files.readString(Path.of("target/test-classes/expectedRoutesImpl31.txt")));
+
+        assertEquals(expected.toString().replaceAll("\\s", ""), underTest.toString().replaceAll("\\s", ""));
+    }
+
+    @Test
+    public void testUnparseableSpecReportsUsefully() {
+        RoutesCreator routesCreator = new RoutesCreator("target/test-classes/does-not-exist.yaml", null, GROUP_ID);
+        try {
+            routesCreator.generateOperationInfoList();
+            fail("Expected an IllegalArgumentException naming the unreadable spec");
+        } catch (IllegalArgumentException expected) {
+            assertTrue("Message should name the offending path, was: " + expected.getMessage(),
+                    expected.getMessage().contains("does-not-exist.yaml"));
+        }
     }
 }
 
